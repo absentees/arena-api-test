@@ -1,0 +1,1 @@
+Example of testing an async api function with Jest.
