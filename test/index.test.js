@@ -28,6 +28,15 @@ test('get a private channel called toolz', async () => {
 	expect(response.slug).toBe('toolz-bvvqxr2e3ok');
 });
 
+// test to delete a channel
+test('delete a channel', async () => {
+	const channelName = "testing123";
+	const response = await lib.getChannelByName(channelName);
+	const channelID = response.id;
+	const deleteResponse = await lib.deleteChannel(channelID);
+	expect(deleteResponse.status).toBe(200);
+});
+
 // test('create a channel called testing123', async () => {
 // 	const response = await lib.createChannel('testing123');
 // 	expect(response.status).toBe(200);
