@@ -130,9 +130,10 @@ const arena = {
 	getChannelByName: async (channelName) => {
 		try {
 			// Search for the channel by name
+			// https://dev.are.na/documentation/search
 			const response = await axios.get('https://api.are.na/v2/search/channels', {
 				params: {
-					"query": channelName
+					"q": channelName
 				},
 				headers: {
 					'Authorization': `Bearer ${process.env.ARENA_TOKEN}`,
@@ -140,7 +141,7 @@ const arena = {
 				}
 			});
 
-			// If the channel name matches  the search query, return the channel
+			// If the channel name matches the search query, return the channel
 			const channel = response.data.channels.find(channel => channel.title == channelName);
 
 			// If the channel exists, return it
