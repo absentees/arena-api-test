@@ -1,6 +1,6 @@
 const axios = require("axios");
 const dotenv = require('dotenv');
-const lib = require('../index');
+const lib = require('../arena');
 
 beforeAll(() => {
 	dotenv.config();	
