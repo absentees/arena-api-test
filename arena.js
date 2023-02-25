@@ -1,6 +1,5 @@
-import axios from 'axios';
-import dotenv from 'dotenv';
-dotenv.config();
+const axios = require('axios');
+const dotenv = require('dotenv').config();
 
 const arena = {
 	createBlock: async (title, content, channelID) => {
@@ -100,6 +99,13 @@ const arena = {
 			return error;
 		}
 	},
+	compareChannels: (channel1, channel2) => {
+		if (channel1.title == channel2.title && channel1.description == channel2.description) {
+			return true;
+		} else {
+			return false;
+		}
+	},
 	compareBlocks: (block1, block2) => {
 		if (block1.title == block2.title && block1.content == block2.content) {
 			return true;
@@ -196,5 +202,5 @@ const arena = {
 	}
 }
 
-// Export default
-export default arena;
+// Export the module
+module.exports = arena;
