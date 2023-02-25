@@ -99,6 +99,34 @@ const arena = {
 			return error;
 		}
 	},
+	mergeChannels: async (channel1Slug, channel2Slug) => {
+		try {
+			// Get the blocks from the first channel
+			const channel1Blocks = await arena.getChannelBlocks(channel1.id);
+
+			// Get the blocks from the second channel
+			const channel2Blocks = await arena.getChannelBlocks(channel2.id);
+
+			// Loop through the blocks in the first channel
+			for (let i = 0; i < channel1Blocks.length; i++) {
+				// Check if the block is in the second channel
+				const blockInChannel2 = channel2Blocks.find(block => arena.compareBlocks(block, channel1Blocks[i]));
+
+				// If the block is not in the second channel, add it
+				if (!blockInChannel2) {
+					await arena.createBlock(channel1Blocks[i].title, channel1Blocks[i].content, channel2.id);
+				}
+			}
+
+			// Delete the first channel
+			await arena.deleteChannel(channel1.slug);
+
+			return true;
+		} catch (error) {
+			console.log(error);
+			return error;
+		}
+	},
 	compareChannels: (channel1, channel2) => {
 		if (channel1.title == channel2.title && channel1.description == channel2.description) {
 			return true;

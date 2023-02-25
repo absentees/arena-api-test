@@ -44,6 +44,30 @@ test('create a channel called creatingachanneltodelete', async () => {
 	expect(response.data.title).toBe('creatingachanneltodelete');
 });
 
+// Test merging two newly create channels
+test('merge two channels', async () => {
+	// Create two channels
+	const response1 = await lib.createChannel('channel1tomerge');
+	const response2 = await lib.createChannel('channel2tomerge');
+
+	// Get the channel IDs
+	const channel1ID = response1.data.id;
+	const channel2ID = response2.data.id;
+
+	// Merge the channels
+	const mergeResponse = await lib.mergeChannels(channel1ID, channel2ID);
+	expect(mergeResponse.status).toBe(true);
+
+	// Delete the channels
+	const deleteResponse1 = await lib.deleteChannel(response1.data.slug);
+	const deleteResponse2 = await lib.deleteChannel(response2.data.slug);
+	expect(deleteResponse1.status).toBe(204);
+	expect(deleteResponse2.status).toBe(204);
+
+	
+});
+
+
 afterAll(async () => {
 	// delete the channel we created
 	const response = await lib.getChannelByName('creatingachanneltodelete');
