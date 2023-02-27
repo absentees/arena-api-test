@@ -197,7 +197,6 @@ const arena = {
 
 			// If the channel exists, return it
 			if (channel) {
-				console.log(`Found channel ${channel.title} by ${channel.user.slug} with ID ${channel.id}!`);
 				return channel;
 			} else {
 				throw new Error ("Channel not found");

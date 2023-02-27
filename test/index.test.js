@@ -28,62 +28,42 @@ test('get a private channel called toolz', async () => {
 	expect(response.slug).toBe('toolz-bvvqxr2e3ok');
 });
 
-// test to delete a channel
-test('delete a channel', async () => {
-	// Create a channel then delete it
-	const response = await lib.createChannel('testing123');
-	const channelSlug = response.data.slug;
-	const deleteResponse = await lib.deleteChannel(channelSlug);
-	expect(deleteResponse.status).toBe(204);
+// // test to delete a channel
+// test('delete a channel', async () => {
+// 	// Create a channel then delete it
+// 	const response = await lib.createChannel('testing123');
+// 	const channelSlug = response.data.slug;
+// 	const deleteResponse = await lib.deleteChannel(channelSlug);
+// 	expect(deleteResponse.status).toBe(204);
 
-});
+// });
 
-test('create a channel called creatingachanneltodelete', async () => {
-	const response = await lib.createChannel('creatingachanneltodelete');
-	expect(response.status).toBe(200);
-	expect(response.data.title).toBe('creatingachanneltodelete');
+// Describe creating and remove a channel
+describe('create and remove a channel', () => {
+	test('create a channel', async () => {
+		const response = await lib.createChannel('testing123');
+		expect(response.status).toBe(200);
+		expect(response.data.title).toBe('testing123');
+	});
+
+	test('delete a channel', async () => {
+		const response = await lib.getChannelByName('testing123');
+		const channelSlug = response.slug;
+		const deleteResponse = await lib.deleteChannel(channelSlug);
+		expect(deleteResponse.status).toBe(204);
+	});
 });
 
 // Test merging two newly create channels
-
-
-
-describe('merge two channels', () => {
-	test('create two channels', async () => {
-		const response1 = await lib.createChannel('channel1tomerge');
-		const response2 = await lib.createChannel('channel2tomerge');
-		expect(response1.status).toBe(200);
-		expect(response2.status).toBe(200);
-	});
-
-
-// test('merge two channels', async () => {
-// 	// Create two channels
-// 	const response1 = await lib.createChannel('channel1tomerge');
-// 	const response2 = await lib.createChannel('channel2tomerge');
-
-// 	// Get the channel IDs
-// 	const channel1ID = response1.data.id;
-// 	const channel2ID = response2.data.id;
-
-// 	// Merge the channels
-// 	const mergeResponse = await lib.mergeChannels(channel1ID, channel2ID);
-// 	expect(mergeResponse.status).toBe(true);
-
-// 	// Delete the channels
-// 	const deleteResponse1 = await lib.deleteChannel(response1.data.slug);
-// 	const deleteResponse2 = await lib.deleteChannel(response2.data.slug);
-// 	expect(deleteResponse1.status).toBe(204);
-// 	expect(deleteResponse2.status).toBe(204);
-
-	
+// describe('merge two channels', () => {
+// 	test('create two channels', async () => {
+// 		const response1 = await lib.createChannel('channel1tomerge');
+// 		const response2 = await lib.createChannel('channel2tomerge');
+// 		expect(response1.status).toBe(200);
+// 		expect(response2.status).toBe(200);
+// 	});
 // });
 
 
-afterAll(async () => {
-	// delete the channel we created
-	const response = await lib.getChannelByName('creatingachanneltodelete');
-	const channelID = response.id;
-	const deleteResponse = await lib.deleteChannel(channelID);
-	expect(deleteResponse.status).toBe(204);
+afterAll(async () => {	
 });
