@@ -71,8 +71,6 @@ const arena = {
 			// https://dev.are.na/documentation/channels
 			const response = await axios.delete(`https://api.are.na/v2/channels/${channelSlug}`, options);
 
-			console.log(`Deleted channel ${channelSlug}`);
-
 			return response;
 
 		} catch (error) {
@@ -206,6 +204,11 @@ const arena = {
 			throw error;
 		}
 	},
+	/**
+	 * Get the blocks from a channel
+	 * @param {string} channelSlug - The slug of the channel to get the blocks from
+	 * @returns {array} - An array of block objects
+	 */
 	createChannel: async (channelName) => {
 		try {
 			const options = {
