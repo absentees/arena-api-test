@@ -7,10 +7,9 @@ beforeAll(() => {
 });
 
 test('get a specific channel by URL', async () => {
-	const channelURL = "http://api.are.na/v2/channels/arena-influences";
+	const channelURL = "https://www.are.na/scott-b-_/funny-haha-lz6ogdvm0rk";
 	const response = await lib.getChannelByURL(channelURL);
-	expect(response.data.title).toBe('Arena Influences');
-	expect(response.data.id).toBe(275);
+	expect(response.title).toBe('funny haha');
 });
 
 // test to get a public channel by id
@@ -58,16 +57,12 @@ describe('merge two channels', () => {
 
 
 afterAll(async () => {	
-	// delete channel1tomerge
-	const response1 = await lib.getChannelByName('channel1tomerge');
-	const channelSlug1 = response1.slug;
-	const deleteResponse1 = await lib.deleteChannel(channelSlug1);
-	expect(deleteResponse1.status).toBe(204);
-
-	// delete channel2tomerge
-	const response2 = await lib.getChannelByName('channel2tomerge');
-	const channelSlug2 = response2.slug;
-	const deleteResponse2 = await lib.deleteChannel(channelSlug2);
-	expect(deleteResponse2.status).toBe(204);
-
+	// Cleanup after tests
+	const createdChannels = ['channel1tomerge', 'channel2tomerge'];
+	for (let i = 0; i < createdChannels.length; i++) {
+		const response = await lib.getChannelByName(createdChannels[i]);
+		const channelSlug = response.slug;
+		const deleteResponse = await lib.deleteChannel(channelSlug);
+		expect(deleteResponse.status).toBe(204);
+	}
 });
