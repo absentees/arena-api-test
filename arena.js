@@ -97,29 +97,35 @@ const arena = {
 			return error;
 		}
 	},
-	mergeChannels: async (channel1Slug, channel2Slug) => {
+	/** 
+	 * Copy all blocks from channel 2 to channel 1, optionally then delete channel 2
+	 * @param {string} channel1Slug - The slug of the channel to copy blocks to
+	 * @param {string} channel2Slug - The slug of the channel to copy blocks from
+	 * @param {boolean} deleteChannel2 - Whether to delete channel 2 after copying blocks
+	 * @returns {object} - The channel 1 object
+	 * 
+	 * @example
+	 * // Copy all blocks from channel 2 to channel 1, then delete channel 2
+	 * mergeChannels('channel-1', 'channel-2', true);
+	 * 
+	 * @example
+	 * // Copy all blocks from channel 2 to channel 1, but don't delete channel 2
+	 * mergeChannels('channel-1', 'channel-2', false);
+	 * 
+	 */
+	mergeChannels: async (channel1Slug, channel2Slug, deleteChannel2) => {
 		try {
-			// Get the blocks from the first channel
-			const channel1Blocks = await arena.getChannelBlocks(channel1.id);
+			// Get channel 1 and channel 2
+			const channel1 = await arena.getChannelBySlug(channel1Slug);
+			const channel2 = await arena.getChannelBySlug(channel2Slug);
 
-			// Get the blocks from the second channel
-			const channel2Blocks = await arena.getChannelBlocks(channel2.id);
 
-			// Loop through the blocks in the first channel
-			for (let i = 0; i < channel1Blocks.length; i++) {
-				// Check if the block is in the second channel
-				const blockInChannel2 = channel2Blocks.find(block => arena.compareBlocks(block, channel1Blocks[i]));
-
-				// If the block is not in the second channel, add it
-				if (!blockInChannel2) {
-					await arena.createBlock(channel1Blocks[i].title, channel1Blocks[i].content, channel2.id);
-				}
+			if (deleteChannel2) {
+				// Delete the second channel
+				await arena.deleteChannel(channel2Slug);
 			}
 
-			// Delete the first channel
-			await arena.deleteChannel(channel1.slug);
-
-			return true;
+			return channel1;
 		} catch (error) {
 			console.log(error);
 			return error;
@@ -132,6 +138,13 @@ const arena = {
 			return false;
 		}
 	},
+	/**
+	 * Compare two blocks to see if they are the same
+	 * @param {object} block1 - The first block to compare
+	 * @param {object} block2 - The second block to compare
+	 * @returns {boolean} - True if the blocks are the same, false if they are different
+	 * 
+	 */
 	compareBlocks: (block1, block2) => {
 		if (block1.title == block2.title && block1.content == block2.content) {
 			return true;
@@ -139,19 +152,58 @@ const arena = {
 			return false;
 		}
 	},
+	getChannelBySlug: async (channelSlug) => {
+		try {
+			const options = {
+				headers: {
+					'Authorization': `Bearer ${process.env.ARENA_TOKEN}`,
+					'Content-Type': 'application/json'
+				}
+			};
+
+			const response = await axios.get(`https://api.are.na/v2/channels/${channelSlug}`, options);
+
+			return response.data;
+
+		} catch (error) {
+			console.log(error);
+			return error;
+		}
+	},
+	/**
+	 * Get a channel object from a given URL
+	 * @param {string} channelURL - The URL of the channel to search for
+	 * @returns {object} - The channel object
+	 * @throws {Error} - If the channel is not found
+	 *
+	 */
 	getChannelByURL: async (channelURL) => {
 		try {
-			const response = await axios.get(channelURL, {
-				params: {
-					"page": 1,
-					"per": 15
-				}
-			});
-			return response;
+			// Extract the channel slug from the channelURL
+			const channelSlug = channelURL.split('/').pop();
+
+			// Get channel using slug
+			const channel = await arena.getChannelBySlug(channelSlug);
+
+			if (channelSlug == channel.slug) {
+				return channel;
+			} else {
+				throw new Error('Channel not found');
+			}
+
 		} catch (error) {
 			console.error(error);
 		}
 	},
+	/**
+	 * Get a channel by ID
+	 * @param {string} channelID - The ID of the channel to search for
+	 * @returns {object} - The channel object
+	 * @throws {Error} - If the channel is not found
+	 * 
+	 * @example
+	 * const channel = await arena.getChannelByID('1234567');
+	 */
 	getChannelByID: async (channelID) => {
 		try {
 			const options = {
@@ -197,7 +249,7 @@ const arena = {
 			if (channel) {
 				return channel;
 			} else {
-				throw new Error ("Channel not found");
+				throw new Error("Channel not found");
 			}
 
 		} catch (error) {
