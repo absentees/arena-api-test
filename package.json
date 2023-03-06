@@ -14,7 +14,7 @@
   },
   "scripts": {
     "dev": "node index.js",
-    "test": "jest --watch --onlyChanged --bail",
+    "test": "jest --watch --bail",
     "test:failure": "jest --watch --onlyFailures --bail"
   }
 }

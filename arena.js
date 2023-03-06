@@ -2,7 +2,32 @@ const axios = require('axios');
 const dotenv = require('dotenv').config();
 
 const arena = {
-	createBlock: async (title, content, channelID) => {
+	/**
+	 * Create a new block given a title, contents and target channel ID
+	 * @param {string} title - The title of the block
+	 * @param {string} content - The content of the block
+	 * @param {string} channelSlug - The slug of the channel to add the block to
+	 * @returns {object} - The response from the API
+	 * @example
+	 * const title = 'test block';
+	 * const content = 'test content';
+	 * const channelID = 1234567;
+	 * const response = await arena.createBlock(title, content, channelID);
+	 * console.log(response);
+	 * // {
+	 * //   "id": 1234567,
+	 * //   "title": "test block",
+	 * //   "content": "test content",
+	 * //   "channel_id": 1234567,
+	 * //   "user_id": 1234567,
+	 * //   "created_at": "2020-04-01T00:00:00.000Z",
+	 * //   "updated_at": "2020-04-01T00:00:00.000Z",
+	 * //   "slug": "test-block-1234567",
+	 * //   "kind": "text",
+	 * //   "source": null,
+	 * 
+	 */
+	createBlock: async (title, content, channelSlug) => {
 		try {
 
 			// Set up the request options and data to send to the API endpoint 
@@ -17,16 +42,15 @@ const arena = {
 			// Channel ID is the number at the end of the URL
 			// e.g. https://www.are.na/channel/1234567
 			const data = {
-				channel_id: channelID,
 				content: content,
 				title: title
 			}
 
 			// Create a block in the channel with the given ID and content and title
 			// https://dev.are.na/documentation/blocks
-			const response = await axios.post('https://api.are.na/v2/blocks', data, options);
+			const response = await axios.post(`https://api.are.na/v2/channels/${channelSlug}/blocks`, data, options);
 
-			// Return the block ID
+			// Return api response
 			return response;
 		} catch (error) {
 			console.log(error);
@@ -119,6 +143,11 @@ const arena = {
 			const channel1 = await arena.getChannelBySlug(channel1Slug);
 			const channel2 = await arena.getChannelBySlug(channel2Slug);
 
+			// For each block in channel 2, create it in channel 1
+			for (let i = 0; i < channel2.contents.length; i++) {
+				const block = channel2.contents[i];
+				await arena.createBlock(block.title, block.content, channel1.id);
+			}
 
 			if (deleteChannel2) {
 				// Delete the second channel
@@ -257,9 +286,25 @@ const arena = {
 		}
 	},
 	/**
-	 * Get the blocks from a channel
-	 * @param {string} channelSlug - The slug of the channel to get the blocks from
-	 * @returns {array} - An array of block objects
+	 * Create a new channel with given name
+	 * @param {string} channelName - The name of the channel to create
+	 * @returns {object} - The channel object
+	 * 
+	 * @example
+	 * const channel = await arena.createChannel('My New Channel');
+	 * 
+	 * // Returns
+	 * {
+	 *  "id": "1234567",
+	 * "title": "My New Channel",
+	 * "slug": "my-new-channel",
+	 * "description": null,
+	 * "created_at": "2020-05-01T00:00:00.000-00:00",
+	 * 
+	 * // ... more channel data
+	 * }
+	 * 
+	 * @see https://dev.are.na/documentation/channels#create-a-channel
 	 */
 	createChannel: async (channelName) => {
 		try {
@@ -276,6 +321,7 @@ const arena = {
 
 			const response = await axios.post('https://api.are.na/v2/channels', data, options);
 
+			// Return the channel object
 			return response;
 		} catch (error) {
 			console.log(error);

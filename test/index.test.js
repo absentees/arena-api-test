@@ -3,7 +3,7 @@ const dotenv = require('dotenv');
 const lib = require('../arena.js');
 
 beforeAll(() => {
-	dotenv.config();	
+	dotenv.config();
 });
 
 test('get a specific channel by URL', async () => {
@@ -43,22 +43,64 @@ describe('create and remove a channel', () => {
 	});
 });
 
+// Test createBlock function
+test('create a new block', async () => {
+	// Create a test channel to add a block to
+	const channelResponse = await lib.createChannel('testing123');
+	const channelSlug = channelResponse.data.slug;
+	expect(channelResponse.status).toBe(200);
+	expect(channelResponse.data.title).toBe('testing123');
+
+	// Create a new block in the channel
+	const response = await lib.createBlock('test block', 'test content', channelSlug);
+	expect(response.status).toBe(200);
+	expect(response.data.title).toBe('test block');
+});
+
 // Test merging two newly create channels
 describe('merge two channels', () => {
-	
+	// Create two channels to merge
+	test('create two channels to merge', async () => {
+		// Create the first channel
+		const response1 = await lib.createChannel('channel1tomerge');
+		expect(response1.status).toBe(200);
+		expect(response1.data.title).toBe('channel1tomerge');
 
-// 	test('create two channels', async () => {
-// 		const response1 = await lib.createChannel('channel1tomerge');
-// 		const response2 = await lib.createChannel('channel2tomerge');
-// 		expect(response1.status).toBe(200);
-// 		expect(response2.status).toBe(200);
-// 	});
+		// Add a block to the first channel
+		const blockResponse = await lib.createBlock('test block in channel 1', 'test content', response1.data.slug);
+		expect(blockResponse.status).toBe(200);
+		expect(blockResponse.data.title).toBe('test block in channel 1');
+
+		// Create the second channel
+		const response2 = await lib.createChannel('channel2tomerge');
+		expect(response2.status).toBe(200);
+		expect(response2.data.title).toBe('channel2tomerge');
+
+		// Add a block to the second channel
+		const blockResponse2 = await lib.createBlock('test block in channel 2', 'test content', response2.data.slug);
+		expect(blockResponse2.status).toBe(200);
+		expect(blockResponse2.data.title).toBe('test block in channel 2');
+	});
+
+	// Merge the two channels
+	test('merge the two channels', async () => {
+		// Get the channel IDs
+		const channel1 = await lib.getChannelByName('channel1tomerge');
+		const channel2 = await lib.getChannelByName('channel2tomerge');
+
+		// Merge the channels
+		const mergeResponse = await lib.mergeChannels(channel1.slug, channel2.slug, false);
+		expect(mergeResponse.status).toBe(200);
+		expect(mergeResponse.data.title).toBe('channel1tomerge');
+		expect(mergeResponse.data.contents.length).toBe(2);
+	}
+	);
 });
 
 
-afterAll(async () => {	
+afterAll(async () => {
 	// Cleanup after tests
-	const createdChannels = ['channel1tomerge', 'channel2tomerge'];
+	const createdChannels = ['testing123', 'channel1tomerge', 'channel2tomerge'];
 	for (let i = 0; i < createdChannels.length; i++) {
 		const response = await lib.getChannelByName(createdChannels[i]);
 		const channelSlug = response.slug;
